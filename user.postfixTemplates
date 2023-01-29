@@ -1,0 +1,185 @@
+.default : value or defutlt
+    java.lang.Number → $expr$!=null?$expr$:0
+    java.lang.String → !StringUtils.isEmpty($expr$)?$expr$:""
+    NUMBER → $expr$!=null?$expr$:0
+    java.lang.Object →$expr$!=null?$expr$:$value$
+
+.toInt : convert to int
+    java.lang.String → Integer.parseInt($expr$)
+    java.lang.Number → $expr$.intValue()
+    NUMBER → ((int) ($expr$))
+
+
+.if : if closure
+    BOOLEAN ->if(Boolean.TRUE.equals($expr$)){\
+    $END$\
+    }
+
+.ifElse : if else closure
+    BOOLEAN ->if(Boolean.TRUE.equals($expr$)){\
+	$ifClosure$\
+    }else{\
+	$elseClosure$\
+	}\
+	$END$\
+
+
+
+.ifEnmpty : if empty closure
+    java.lang.String → if(org.springframework.util.StringUtils.isEmpty($expr$)){\
+    $END$\
+    }
+    java.lang.Object → if(org.springframework.util.ObjectUtils.isEmpty($expr$)){\
+    $END$\
+    }
+
+.ifNotenmpty : if not empty closure
+    java.lang.String → if(!org.springframework.util.StringUtils.isEmpty($expr$)){\
+    $END$\
+    }
+    java.lang.Object → if(!org.springframework.util.ObjectUtils.isEmpty($expr$)){\
+    $END$\
+    }
+
+.isEnmpty : check empty
+    java.lang.String → org.springframework.util.StringUtils.isEmpty($expr$)
+    java.lang.Object → org.springframework.util.ObjectUtils.isEmpty($expr$)
+
+.isNotenmpty : check empty
+    java.lang.String → !org.springframework.util.StringUtils.isEmpty($expr$)
+    java.lang.Object → !org.springframework.util.ObjectUtils.isEmpty($expr$)
+
+
+.newV : new
+    CLASS → $expr$ $VAR:suggestVariableName()$ = new $expr$();
+
+.list : new
+    CLASS → java.util.List<$expr$>
+
+
+.newList : Lists.newArrayList
+    CLASS → com.google.common.collect.Lists.newArrayList($expr$.class)$END$
+    java.lang.Object → com.google.common.collect.Lists.newArrayList($expr$)$END$
+
+.addToList : Lists.newArrayList at top line
+    CLASS → com.google.common.collect.Lists.newArrayList($expr$.class)$END$
+    java.lang.Object → final java.util.List<$VAR:expressionType(expr)$> $NAME:suggestVariableName()$ = new java.util.ArrayList<>();\
+		$NAME$.add($expr$);
+    $END$
+
+
+
+.singleList : Collections.singletonList
+    CLASS → java.util.Collections.singletonList($expr$.class)$END$
+    java.lang.Object → java.util.Collections.singletonList($expr$)$END$
+
+.singleListOrNull : Collections.singletonList
+    CLASS → java.util.Collections.singletonList($expr$.class)$END$
+    java.lang.Object → $expr$!=null?java.util.Collections.singletonList($expr$):null$END$
+
+.singleListOrDefault : Collections.singletonList
+    CLASS → java.util.Collections.singletonList($expr$.class)$END$
+    java.lang.Object → $expr$!=null?java.util.Collections.singletonList($expr$):Collections.emptyList()$END$
+
+.toString : String.valueOf
+    java.lang.Object → String.valueOf($expr$)
+
+.toArray : toArray
+    java.util.Collection → $expr$.toArray(new $VAR:guessElementType(expr)$[0])
+
+
+.map : mapList
+    java.util.Collection → $expr$\
+    .stream()\
+    .map(item -> $map$)\
+    .collect(java.util.stream.Collectors.toList())
+    ARRAY ->java.util.Arrays.stream($expr$)\
+    .map(item -> $map$)\
+    .collect(java.util.stream.Collectors.toList())
+
+.map2Set : mapSet
+    java.util.Collection → $expr$\
+    .stream()\
+    .map(item -> $map$)\
+    .collect(java.util.stream.Collectors.toSet())
+    ARRAY ->java.util.Arrays.stream($expr$)\
+    .map(item -> $map$)\
+    .collect(java.util.stream.Collectors.toSet())
+
+.join : join
+    java.util.Collection → $expr$\
+    .stream()\
+    .map(item -> $map$)\
+    .collect(java.util.stream.Collectors.joining($delimiter$))
+
+.groupBy : groupBy
+    java.util.Collection → $expr$\
+    .stream()\
+    .collect(java.util.stream.Collectors.groupingBy(item -> $by$))
+
+.toMap : list to map
+    java.util.Collection → $expr$\
+    .stream()\
+    .collect(java.util.stream.Collectors.toMap(item->$mapKey$,Function.identity()))
+
+
+.toValueMap : list to map
+    java.util.Collection → $expr$\
+    .stream()\
+    .collect(java.util.stream.Collectors.toMap(item->$mapKey$,item->$mapValue$))
+
+.toBeanMap : toBeanMap
+    java.lang.Object → org.springframework.cglib.beans.BeanMap $VAR:suggestVariableName()$ = org.springframework.cglib.beans.BeanMap.create($expr$);\
+    $END$
+
+
+################################# one step ###################################################################################
+.logi : log messgae
+    java.lang.String →  com.onestep.os.utils.LoggerUtils.info($expr$);
+    $END$
+    java.lang.Object → com.onestep.os.utils.LoggerUtils.info(String.valueOf($expr$));
+    $END$
+
+.loge : log messgae
+    java.lang.Exception → com.onestep.os.utils.LoggerUtils.exception($ERROR*:variableOfType("com.onestep.os.error.Error"):"com.onestep.os.error.OsError.OS_FAILURE_INTERNAL"$,$expr$);\
+    $END$
+    java.lang.String → com.onestep.os.utils.LoggerUtils.error($ERROR*:variableOfType("com.onestep.os.error.Error"):"com.onestep.os.error.OsError.OS_FAILURE_INTERNAL"$,$expr$);\
+    $END$
+    java.lang.Object → com.onestep.os.utils.LoggerUtils.error($ERROR*:variableOfType("com.onestep.os.error.Error"):"com.onestep.os.error.OsError.OS_FAILURE_INTERNAL"$,String.valueOf($expr$));\
+    $END$
+
+.toJson : json
+    java.lang.Object → com.onestep.os.utils.JsonUtils.writeJson($expr$)
+
+.json : json
+    java.lang.String →  com.onestep.os.utils.JsonUtils.readJson($expr$,$CLAZZ$.class)
+
+.jsonList : json list
+    java.lang.String → com.onestep.os.utils.JsonUtils.readJsonAsList($expr$,$CLAZZ$.class)
+
+.verify : com.onestep.pmms.utils
+    java.util.Optional → com.onestep.pmms.utils.VerifyUtils.solveOptional($expr$, $CLAZZ$.class, "$P1$", $request*:variableOfType("com.onestep.pmms.model.message.BasePmmsRequest")$$method$);\
+    $END$
+    java.lang.Object → $NAME*:expressionType(expr)$ $VAR:suggestVariableName()$ = com.onestep.pmms.utils.VerifyUtils.checkParameter($expr$, $CLAZZ$.class, "$P1$");\
+    $END$
+
+.pmmsCheck : com.onestep.pmms.utils
+    java.util.Optional → com.onestep.pmms.utils.VerifyUtils.solveOptional($expr$, $CLAZZ$.class, "$P1$", $request*:variableOfType("com.onestep.pmms.model.message.BasePmmsRequest")$$method$);\
+    $END$
+    java.lang.Object → $NAME*:expressionType(expr)$ $VAR:suggestVariableName()$ = com.onestep.pmms.utils.VerifyUtils.checkParameter($expr$, $CLAZZ$.class, "$P1$");\
+    $END$
+
+.pmmsCodeCheck : com.onestep.pmms.utils
+    java.lang.Object → com.onestep.pmms.utils.VerifyUtils.verifyResponse($expr$.getCode(),$expr$.getMessage());
+    $END$
+
+.converResponse : com.onestep.pmms.utils
+    java.lang.Object → SwaggerUtils.convertTo$NAME*:regularExpression(methodReturnType(), "^.+[\.]", "")$($expr$);
+
+.verifyResponse : com.onestep.pmms.utils
+    java.lang.Object → com.onestep.pmms.utils.VerifyUtils.verifyResponse($expr$.getCode(),$expr$.getMessage());
+    $END$
+
+.optionRequest : com.onestep.pmms.utils
+    java.lang.Object → optionBaseDateRequest($expr$);
+    $END$
