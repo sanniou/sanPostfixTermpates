@@ -1,14 +1,24 @@
 .default : value or defutlt
+    java.math.BigDecimal → $expr$!=null?$expr$:BigDecimal.ZERO
     java.lang.Number → $expr$!=null?$expr$:0
-    java.lang.String → !StringUtils.isEmpty($expr$)?$expr$:""
+    java.lang.String → !org.springframework.util.StringUtils.isEmpty($expr$)?$expr$:""
     NUMBER → $expr$!=null?$expr$:0
-    java.lang.Object →$expr$!=null?$expr$:$value$
+    java.lang.Object → $expr$!=null?$expr$:$value$
+
+.nullDefault : value or defutlt
+    java.lang.String → $expr$!=null?$expr$:"$value$"
+    java.lang.Object → $expr$!=null?$expr$:$value$
+    java.math.BigDecimal → $expr$!=null?$expr$:$value$
 
 .toInt : convert to int
     java.lang.String → Integer.parseInt($expr$)
     java.lang.Number → $expr$.intValue()
     NUMBER → ((int) ($expr$))
 
+.toLong : convert to long
+    java.lang.String → Long.parselong($expr$)
+    java.lang.Number → $expr$.intValue()
+    NUMBER → ((int) ($expr$))
 
 .if : if closure
     BOOLEAN ->if(Boolean.TRUE.equals($expr$)){\
@@ -29,6 +39,9 @@
     java.lang.String → if(org.springframework.util.StringUtils.isEmpty($expr$)){\
     $END$\
     }
+    java.util.Collection → if(org.springframework.util.CollectionUtils.isEmpty($expr$)){\
+    $END$\
+    }
     java.lang.Object → if(org.springframework.util.ObjectUtils.isEmpty($expr$)){\
     $END$\
     }
@@ -37,16 +50,21 @@
     java.lang.String → if(!org.springframework.util.StringUtils.isEmpty($expr$)){\
     $END$\
     }
+    java.util.Collection → if(!org.springframework.util.CollectionUtils.isEmpty($expr$)){\
+    $END$\
+    }
     java.lang.Object → if(!org.springframework.util.ObjectUtils.isEmpty($expr$)){\
     $END$\
     }
 
 .isEnmpty : check empty
     java.lang.String → org.springframework.util.StringUtils.isEmpty($expr$)
+    java.util.Collection → org.springframework.util.CollectionUtils.isEmpty($expr$)
     java.lang.Object → org.springframework.util.ObjectUtils.isEmpty($expr$)
 
 .isNotenmpty : check empty
     java.lang.String → !org.springframework.util.StringUtils.isEmpty($expr$)
+    java.util.Collection → !org.springframework.util.CollectionUtils.isEmpty($expr$)
     java.lang.Object → !org.springframework.util.ObjectUtils.isEmpty($expr$)
 
 
@@ -76,10 +94,12 @@
 .singleListOrNull : Collections.singletonList
     CLASS → java.util.Collections.singletonList($expr$.class)$END$
     java.lang.Object → $expr$!=null?java.util.Collections.singletonList($expr$):null$END$
+    java.lang.String → !org.springframework.util.StringUtils.isEmpty($expr$)?java.util.Collections.singletonList($expr$):null$END$
 
 .singleListOrDefault : Collections.singletonList
     CLASS → java.util.Collections.singletonList($expr$.class)$END$
     java.lang.Object → $expr$!=null?java.util.Collections.singletonList($expr$):Collections.emptyList()$END$
+    java.lang.String → !org.springframework.util.StringUtils.isEmpty($expr$)?java.util.Collections.singletonList($expr$):Collections.emptyList()$END$
 
 .toString : String.valueOf
     java.lang.Object → String.valueOf($expr$)
